@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# 打卡脚修改自ZJU-nCov-Hitcarder的开源代码，感谢这位同学开源的代码
-
 import requests
 import json
 import re
@@ -33,10 +31,11 @@ class DaKa(object):
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36"
         }
         self.sess = requests.Session()
+        self.sess.trust_env = False
 
     def login(self):
         """Login to ZJU platform"""
-        res = self.sess.get(self.login_url, headers=self.headers)
+        res = self.sess.get(self.login_url, headers=self.headers, verify=False)
         execution = re.search(
             'name="execution" value="(.*?)"', res.text).group(1)
         res = self.sess.get(
@@ -109,7 +108,7 @@ class DaKa(object):
         new_info['jcqzrq'] = ""
         new_info['gwszdd'] = ""
         new_info['szgjcs'] = ""
-        new_info['verifyCode'] = self.vcode
+        # new_info['verifyCode'] = self.vcode
         self.info = new_info
         return new_info
 
@@ -121,17 +120,17 @@ class DaKa(object):
         result_int = pow(password_int, e_int, M_int)
         return hex(result_int)[2:].rjust(128, '0')
 
-    def get_verifyCode(self):
-        import ddddocr
-        ocr = ddddocr.DdddOcr()
+    # def get_verifyCode(self):
+        #import ddddocr
+        # ocr = ddddocr.DdddOcr()
 
-        img_path = 'https://healthreport.zju.edu.cn/ncov/wap/default/code'
-        res = self.sess.get(img_path, headers=self.headers)
+#        img_path = 'https://healthreport.zju.edu.cn/ncov/wap/default/code'
+ #       res = self.sess.get(img_path, headers=self.headers)
 
-        if res.status_code == 200:
+#        if res.status_code == 200:
             # open('./code.jpg', 'wb').write(res.content)
-            self.vcode = ocr.classification(res.content)
-            print("验证码已识别：", self.vcode)
+ #           self.vcode = ocr.classification(res.content)
+  #          print("验证码已识别：", self.vcode)
 
 # Exceptions
 class LoginError(Exception):
@@ -170,12 +169,12 @@ def main(username, password):
         print(str(err))
         raise Exception
 
-    print('正在识别验证码...')
-    try:
-        dk.get_verifyCode()
-    except Exception as err:
-        print('获取验证码失败，请手动打卡，更多信息: ' + str(err))
-        raise Exception    
+    # print('正在识别验证码...')
+    # try:
+    #     dk.get_verifyCode()
+    # except Exception as err:
+    #    print('获取验证码失败，请手动打卡，更多信息: ' + str(err))
+    #     raise Exception    
 
     print('正在获取个人信息...')
     try:
